@@ -1,0 +1,58 @@
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/nginx.Dockerfile
+    depends_on:
+      - php
+      - mysql
+    container_name: laravel_nginx
+    ports:
+      - 8082:80
+      - 443:443
+    volumes:
+      - ./src:/var/www/html
+
+  php:
+    build:
+      context: .
+      dockerfile: ./docker/php/php.Dockerfile
+    container_name: laravel_php
+    volumes:
+      - ./src:/var/www/html
+
+  mysql:
+    image: mysql:8.0.27
+    platform: linux/amd64
+    container_name: laravel_mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql:/var/lib/mysql
+    env_file:
+      - ./env/mysql.env
+
+  composer:
+    image: composer:2.7.7
+    container_name: laravel_composer
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+
+  artisan:
+    build:
+      context: .
+      dockerfile: ./docker/php/php.Dockerfile
+    container_name: laravel_artisan
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: ['php', 'artisan']
+
+  npm:
+    image: node:22-alpine3.19
+    container_name: laravel_npm
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: ['npm']
