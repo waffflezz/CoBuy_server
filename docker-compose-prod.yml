@@ -1,0 +1,34 @@
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/nginx.Dockerfile
+    depends_on:
+      - php
+      - mysql
+    container_name: laravel_nginx
+    ports:
+      - 8082:80
+      - 443:443
+    volumes:
+      - ./src:/var/www/html
+
+  php:
+    build:
+      context: .
+      dockerfile: ./docker/php/php.Dockerfile
+    container_name: laravel_php
+    user: "www-data:www-data"
+    volumes:
+      - ./src:/var/www/html
+
+  mysql:
+    image: mysql:8.0.27
+    platform: linux/amd64
+    container_name: laravel_mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql:/var/lib/mysql
+    env_file:
+      - ./env/mysql.env
