@@ -18,6 +18,7 @@ services:
       context: .
       dockerfile: ./docker/php/php.Dockerfile
     container_name: laravel_php
+    user: "www-data:www-data"
     volumes:
       - ./src:/var/www/html
 
