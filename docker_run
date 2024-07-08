@@ -1,0 +1,12 @@
+#!/bin/bash
+
+COMPOSE_FILE=docker-compose.yml
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 <command> [args...]"
+  exit 1
+fi
+
+COMMAND="$@"
+
+docker compose -f $COMPOSE_FILE run --rm $COMMAND

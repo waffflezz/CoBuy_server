@@ -7,7 +7,11 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.9",
-        "laravel/tinker": "^2.9"
+        "laravel/sanctum": "^4.0",
+        "laravel/socialite": "^5.15",
+        "laravel/tinker": "^2.9",
+        "socialiteproviders/yandex": "^4.1",
+        "symfony/process": "7.0.*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

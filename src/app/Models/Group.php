@@ -14,6 +14,7 @@ class Group extends Model
 
     protected $fillable = [
         'name',
+        'image',
         'owner_id'
     ];
 
