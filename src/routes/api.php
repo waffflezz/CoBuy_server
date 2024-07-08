@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\Auth\OAuthController;
 use App\Http\Controllers\API\Auth\RegisterController;
+use App\Http\Controllers\API\GroupController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,3 +16,5 @@ Route::controller(OAuthController::class)->group(function () {
     Route::get('/yandex', 'yandex');
     Route::get('/yandex/redirect', 'yandexRedirect');
 });
+
+Route::apiResource('/group', GroupController::class)->middleware('auth:sanctum');
