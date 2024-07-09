@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\Auth\OAuthController;
 use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\GroupController;
+use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ShoppingListController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -18,5 +19,8 @@ Route::controller(OAuthController::class)->group(function () {
     Route::get('/yandex/redirect', 'yandexRedirect');
 });
 
-Route::apiResource('/group', GroupController::class)->middleware('auth:sanctum');
-Route::apiResource('/list', ShoppingListController::class)->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('group', GroupController::class);
+    Route::apiResource('list', ShoppingListController::class);
+    Route::apiResource('list.product', ProductController::class);
+});
