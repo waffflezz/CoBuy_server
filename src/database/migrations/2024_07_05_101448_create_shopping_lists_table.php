@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('shopping_lists', function (Blueprint $table) {
             $table->id();
+
             $table->string('name');
             $table->unsignedBigInteger('group_id');
+
             $table->index('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

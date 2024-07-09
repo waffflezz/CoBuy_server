@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GroupResource extends JsonResource
+class ShoppingListResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,10 +17,7 @@ class GroupResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'avaUrl' => $this->image,
-            'inviteLink' => '-',
-            'owner' => $this->owner_id,
-            'members' => UserResource::collection($this->users)
+            'group_id' => $this->group_id
         ];
     }
 }
