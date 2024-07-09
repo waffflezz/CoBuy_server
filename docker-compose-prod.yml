@@ -42,7 +42,7 @@ services:
   artisan:
     build:
       context: .
-      dockerfile: ./docker/php/php.Dockerfile
+      dockerfile: ./docker/php/php.prod.Dockerfile
     container_name: laravel_artisan
     volumes:
       - ./src:/var/www/html
