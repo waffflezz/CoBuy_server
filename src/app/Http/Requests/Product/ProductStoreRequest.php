@@ -24,8 +24,7 @@ class ProductStoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'is_purchased' => 'boolean',
-            'shopping_list_id' => 'required|exists:shopping_lists,id',
+            'is_purchased' => 'boolean'
         ];
     }
 }

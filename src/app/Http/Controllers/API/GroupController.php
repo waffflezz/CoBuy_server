@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\EventType;
+use App\Events\GroupChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Group\GroupStoreRequest;
 use App\Http\Resources\GroupResource;
@@ -10,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class GroupController extends Controller
 {
@@ -35,6 +38,8 @@ class GroupController extends Controller
         $group = Group::create($data);
         $group->users()->attach(Auth::id());
 
+        broadcast(new GroupChanged($group, EventType::Create))->toOthers();
+
         return new GroupResource($group);
     }
 
@@ -59,6 +64,8 @@ class GroupController extends Controller
 
         $group->update($request->validated());
 
+        broadcast(new GroupChanged($group, EventType::Update))->toOthers();
+
         return new GroupResource($group);
     }
 
@@ -70,6 +77,9 @@ class GroupController extends Controller
         $user = Auth::user();
         $group = $user->groups()->findOrFail($id);
         $group->delete();
+
+        broadcast(new GroupChanged($group, EventType::Delete))->toOthers();
+
         return response()->json(null, 204);
     }
 }

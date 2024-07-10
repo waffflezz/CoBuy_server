@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\EventType;
+use App\Events\ListChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\List\ShoppingListStoreRequest;
 use App\Http\Requests\List\ShoppingListUpdateRequest;
@@ -33,6 +35,8 @@ class ShoppingListController extends Controller
 
         $shoppingList = $group->shoppingLists()->create($request->validated());
 
+        broadcast(new ListChanged($shoppingList, EventType::Create))->toOthers();
+
         return new ShoppingListResource($shoppingList);
     }
 
@@ -57,6 +61,8 @@ class ShoppingListController extends Controller
 
         $shoppingList->update($request->validated());
 
+        broadcast(new ListChanged($shoppingList, EventType::Update))->toOthers();
+
         return new ShoppingListResource($shoppingList);
     }
 
@@ -69,6 +75,8 @@ class ShoppingListController extends Controller
         $shoppingList = ShoppingList::whereIn('group_id', $user->groups->pluck('id'))->findOrFail($id);
 
         $shoppingList->delete();
+
+        broadcast(new ListChanged($shoppingList, EventType::Delete))->toOthers();
 
         return response()->json(null, 204);
     }
