@@ -31,7 +31,7 @@ class ShoppingListController extends Controller
             return response()->json(['error' => 'Unauthorized.'], 403);
         }
 
-        $shoppingLists = ShoppingList::where('group_id', $group_id);
+        $shoppingLists = ShoppingList::where('group_id', $group_id)->get();
 
         return ShoppingListResource::collection($shoppingLists);
     }
