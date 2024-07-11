@@ -21,10 +21,10 @@ class GroupInviteController extends Controller
             ]);
             $group->invite_link = $token;
             $group->save();
-            return $token;
+            return response()->json(['token' => $token]);
         }
 
-        return $group->invite_link;
+        return response()->json(['token' => $group->invite_link]);
     }
 
     public function invite(Request $request)
