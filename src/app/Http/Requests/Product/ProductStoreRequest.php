@@ -24,7 +24,7 @@ class ProductStoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'is_purchased' => 'boolean'
+            'status' => 'integer'
         ];
     }
 }
