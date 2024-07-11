@@ -18,7 +18,7 @@ class GroupResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'avaUrl' => $this->image,
-            'inviteLink' => '-',
+            'inviteLink' => $this->invite_link,
             'owner' => $this->owner_id,
             'members' => UserResource::collection($this->users)
         ];

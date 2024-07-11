@@ -12,6 +12,7 @@
         "laravel/tinker": "^2.9",
         "pusher/pusher-php-server": "^7.2",
         "socialiteproviders/yandex": "^4.1",
+        "stechstudio/laravel-jwt": "^2.3",
         "symfony/process": "7.0.*"
     },
     "require-dev": {
