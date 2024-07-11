@@ -17,10 +17,21 @@ class ShoppingListController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $group_id = $request->query('group_id');
+
+        if (!is_numeric($group_id)) {
+            return response()->json(['error' => 'group_id must be numeric'], 400);
+        }
+
         $user = Auth::user();
-        $shoppingLists = ShoppingList::whereIn('group_id', $user->groups->pluck('id'))->get();
+
+        if (! $user->groups->pluck('id')->contains($group_id)) {
+            return response()->json(['error' => 'Unauthorized.'], 403);
+        }
+
+        $shoppingLists = ShoppingList::whereIn('group_id', $group_id)->get();
 
         return ShoppingListResource::collection($shoppingLists);
     }

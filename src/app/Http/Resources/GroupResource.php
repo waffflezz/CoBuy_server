@@ -20,6 +20,8 @@ class GroupResource extends JsonResource
             'avaUrl' => $this->image,
             'inviteLink' => $this->invite_link,
             'owner' => $this->owner_id,
+            'membersCount' => $this->users->count(),
+            'listsCount' => $this->shoppingLists->count(),
             'members' => UserResource::collection($this->users)
         ];
     }
