@@ -82,4 +82,25 @@ class GroupController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function leave(string $id)
+    {
+        $user = Auth::user();
+        $group = $user->groups()->findOrFail($id);
+        $group->users()->detach($user->id);
+        return response()->json(null, 204);
+    }
+
+    public function kick(string $groupId, string $userId)
+    {
+        $user = Auth::user();
+        $group = $user->groups()->findOrFail($groupId);
+
+        if (!$group->users()->where('users.id', $userId)->exists()) {
+            return response()->json(['error' => 'User does not exist'], 404);
+        }
+
+        $group->users()->detach($userId);
+        return response()->json(null, 204);
+    }
 }

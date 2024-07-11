@@ -55,4 +55,9 @@ class RegisterController extends Controller
             'message' => 'Logged out successfully'
         ]);
     }
+
+//    public function loginCheck(Request $request): UserResource
+//    {
+//
+//    }
 }
