@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\Auth\OAuthController;
 use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\GroupController;
+use App\Http\Controllers\API\GroupInviteController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ShoppingListController;
 use Illuminate\Http\Request;
@@ -23,4 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('group', GroupController::class);
     Route::apiResource('list', ShoppingListController::class);
     Route::apiResource('list.product', ProductController::class);
+
+    Route::get('/invite/{group_id}', [GroupInviteController::class, 'getInviteLink']);
+    Route::get('/invite', [GroupInviteController::class, 'invite']);
 });
