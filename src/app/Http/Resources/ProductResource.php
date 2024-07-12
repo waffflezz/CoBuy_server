@@ -18,8 +18,8 @@ class ProductResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'is_purchased' => $this->is_purchased,
-            'shopping_list_id' => $this->shopping_list_id
+            'status' => $this->status,
+            'shoppingListId' => $this->shopping_list_id
         ];
     }
 }

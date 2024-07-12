@@ -18,7 +18,7 @@ class ShoppingListResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'group_id' => $this->group_id,
+            'groupId' => $this->group_id,
             'productsCount' => $this->products->count(),
             'checkedProductsCount' => $this->products->filter(function (Product $product) {
                 return $product->status != 0;
