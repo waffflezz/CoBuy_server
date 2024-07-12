@@ -9,26 +9,43 @@ use App\Http\Requests\List\ShoppingListStoreRequest;
 use App\Http\Requests\List\ShoppingListUpdateRequest;
 use App\Http\Resources\ShoppingListResource;
 use App\Models\ShoppingList;
+use App\Services\ShoppingListService;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ShoppingListController extends Controller
 {
+    use AuthorizesRequests;
+
+    private ShoppingListService $shoppingListService;
+
+    public function __construct(ShoppingListService $shoppingListService)
+    {
+        $this->shoppingListService = $shoppingListService;
+    }
+
     /**
      * Display a listing of the resource.
+     * @throws AuthorizationException
      */
     public function index(Request $request)
     {
         $group_id = $request->query('group_id');
 
         if (!is_numeric($group_id)) {
-            return response()->json(['error' => 'group_id must be numeric'], 400);
+            throw new BadRequestHttpException('group_id must be numeric');
         }
 
         $user = Auth::user();
 
+        $this->authorize('viewAny', [$user, $group_id]);
+
         if (! $user->groups->pluck('id')->contains($group_id)) {
-            return response()->json(['error' => 'Unauthorized.'], 403);
+            throw new BadRequestHttpException('group_id not allowed');
         }
 
         $shoppingLists = ShoppingList::where('group_id', $group_id)->get();
@@ -38,13 +55,22 @@ class ShoppingListController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * @throws AuthorizationException
      */
     public function store(ShoppingListStoreRequest $request)
     {
-        $user = Auth::user();
-        $group = $user->groups()->findOrFail($request->group_id);
+        $data = $request->validated();
 
-        $shoppingList = $group->shoppingLists()->create($request->validated());
+        $user = Auth::user();
+
+        $this->authorize('create', [$user, $data['group_id']]);
+
+        $group = $user->groups()->find($request->group_id);
+        if (!$group) {
+            throw new ModelNotFoundException('Group by ID: ' . $request->group_id . ' not found');
+        }
+
+        $shoppingList = $group->shoppingLists()->create($data);
 
         broadcast(new ListChanged($shoppingList, EventType::Create))->toOthers();
 
@@ -53,24 +79,32 @@ class ShoppingListController extends Controller
 
     /**
      * Display the specified resource.
+     * @throws AuthorizationException
      */
     public function show(string $id)
     {
         $user = Auth::user();
-        $shoppingList = ShoppingList::whereIn('group_id', $user->groups->pluck('id'))->findOrFail($id);
+        $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
+
+        $this->authorize('view', [$user, $shoppingList->group_id]);
 
         return new ShoppingListResource($shoppingList);
     }
 
     /**
      * Update the specified resource in storage.
+     * @throws AuthorizationException
      */
     public function update(ShoppingListUpdateRequest $request, string $id)
     {
-        $user = Auth::user();
-        $shoppingList = ShoppingList::whereIn('group_id', $user->groups->pluck('id'))->findOrFail($id);
+        $data = $request->validated();
 
-        $shoppingList->update($request->validated());
+        $user = Auth::user();
+        $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
+
+        $this->authorize('update', [$user, $shoppingList->group_id]);
+
+        $shoppingList->update($data);
 
         broadcast(new ListChanged($shoppingList, EventType::Update))->toOthers();
 
@@ -79,11 +113,14 @@ class ShoppingListController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * @throws AuthorizationException
      */
     public function destroy(string $id)
     {
         $user = Auth::user();
-        $shoppingList = ShoppingList::whereIn('group_id', $user->groups->pluck('id'))->findOrFail($id);
+        $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
+
+        $this->authorize('delete', [$user, $shoppingList->group_id]);
 
         $shoppingList->delete();
 

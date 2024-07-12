@@ -10,14 +10,24 @@ use App\Http\Requests\Product\ProductUpdateRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\ShoppingList;
+use App\Services\ProductService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
     use AuthorizesRequests;
+
+    private ProductService $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
 
     /**
      * Display a listing of the resource.
@@ -25,9 +35,12 @@ class ProductController extends Controller
      */
     public function index(string $shoppingListId)
     {
-        $this->authorize('viewAny', [Product::class, $shoppingListId]);
+        $this->authorize('viewAny', [Auth::user(), $shoppingListId]);
 
-        $shoppingList = ShoppingList::findOrFail($shoppingListId);
+        $shoppingList = ShoppingList::find($shoppingListId);
+        if (!$shoppingList) {
+            throw new ModelNotFoundException('Shopping list by ID: ' . $shoppingListId . ' not found');
+        }
         $products = $shoppingList->products;
 
         return ProductResource::collection($products);
@@ -39,11 +52,18 @@ class ProductController extends Controller
      */
     public function store(ProductStoreRequest $request, string $shoppingListId)
     {
-        $this->authorize('create', [Product::class, $shoppingListId]);
+        $data = $request->validated();
 
-        $shoppingList = ShoppingList::findOrFail($shoppingListId);
-        $product = $shoppingList->products()->create($request->validated());
-        $product['shopping_list_id'] = $shoppingListId;
+        $this->authorize('create', [Auth::user(), $shoppingListId]);
+
+        $shoppingList = ShoppingList::find($shoppingListId);
+        if (!$shoppingList) {
+            throw new ModelNotFoundException('Shopping list by ID: ' . $shoppingListId . ' not found');
+        }
+
+        $product = $shoppingList->products()->create($data);
+        $product->shopping_list_id = $shoppingListId;
+        $product->save();
 
         broadcast(new ProductChanged($product, EventType::Create))->toOthers();
 
@@ -56,7 +76,8 @@ class ProductController extends Controller
      */
     public function show(string $shoppingListId, string $id)
     {
-        $product = Product::where('shopping_list_id', $shoppingListId)->findOrFail($id);
+        $product = $this->productService->getProductByShoppingListId($shoppingListId, $id);
+
         $this->authorize('view', $product);
 
         return new ProductResource($product);
@@ -68,7 +89,8 @@ class ProductController extends Controller
      */
     public function update(ProductUpdateRequest $request, string $shoppingListId, string $id)
     {
-        $product = Product::where('shopping_list_id', $shoppingListId)->findOrFail($id);
+        $product = $this->productService->getProductByShoppingListId($shoppingListId, $id);
+
         $this->authorize('update', $product);
 
         $product->update($request->validated());
@@ -84,7 +106,7 @@ class ProductController extends Controller
      */
     public function destroy(string $shoppingListId, string $id)
     {
-        $product = Product::where('shopping_list_id', $shoppingListId)->findOrFail($id);
+        $product = $this->productService->getProductByShoppingListId($shoppingListId, $id);
         $this->authorize('delete', $product);
 
         $product->delete();

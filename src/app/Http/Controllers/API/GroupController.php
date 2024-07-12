@@ -8,14 +8,27 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Group\GroupStoreRequest;
 use App\Http\Resources\GroupResource;
 use App\Models\Group;
+use App\Services\GroupService;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 
 class GroupController extends Controller
 {
+    use AuthorizesRequests;
+
+    private GroupService $groupService;
+    public function __construct(GroupService $groupService)
+    {
+        $this->groupService = $groupService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -49,20 +62,27 @@ class GroupController extends Controller
     public function show(string $id): GroupResource
     {
         $user = Auth::user();
-        $group = $user->groups()->findOrFail($id);
+
+        $group = $this->groupService->getGroupByUser($user, $id);
 
         return new GroupResource($group);
     }
 
     /**
      * Update the specified resource in storage.
+     * @throws AuthorizationException
      */
     public function update(GroupStoreRequest $request, string $id): GroupResource
     {
-        $user = Auth::user();
-        $group = $user->groups()->findOrFail($id);
+        $data = $request->validated();
 
-        $group->update($request->validated());
+        $user = Auth::user();
+
+        $group = $this->groupService->getGroupByUser($user, $id);
+
+        $this->authorize('update', [$user, $group]);
+
+        $group->update($data);
 
         broadcast(new GroupChanged($group, EventType::Update))->toOthers();
 
@@ -71,11 +91,16 @@ class GroupController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * @throws AuthorizationException
      */
     public function destroy(string $id): JsonResponse
     {
         $user = Auth::user();
-        $group = $user->groups()->findOrFail($id);
+
+        $group = $this->groupService->getGroupByUser($user, $id);
+
+        $this->authorize('delete', [$user, $group]);
+
         $group->delete();
 
         broadcast(new GroupChanged($group, EventType::Delete))->toOthers();
@@ -86,18 +111,25 @@ class GroupController extends Controller
     public function leave(string $id)
     {
         $user = Auth::user();
-        $group = $user->groups()->findOrFail($id);
+
+        $group = $this->groupService->getGroupByUser($user, $id);
+
         $group->users()->detach($user->id);
         return response()->json(null, 204);
     }
 
+    /**
+     * @throws AuthorizationException
+     */
     public function kick(string $groupId, string $userId)
     {
         $user = Auth::user();
-        $group = $user->groups()->findOrFail($groupId);
+        $group = $this->groupService->getGroupByUser($user, $groupId);
+
+        $this->authorize('kick', [$user, $group]);
 
         if (!$group->users()->where('users.id', $userId)->exists()) {
-            return response()->json(['error' => 'User does not exist'], 404);
+            return new ModelNotFoundException('User ' . $user->name . ' not found');
         }
 
         $group->users()->detach($userId);

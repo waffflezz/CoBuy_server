@@ -14,8 +14,12 @@ class ProductPolicy
      */
     public function viewAny(User $user, string $shoppingListId): bool
     {
-        $shoppingList = ShoppingList::findOrFail($shoppingListId);
-        return $this->isUserInGroup($user, $shoppingList->group_id);
+        $shoppingList = ShoppingList::find($shoppingListId);
+        if (!$shoppingList) {
+            return false;
+        }
+
+        return Utils::isUserInGroup($user, $shoppingList->group_id);
     }
 
     /**
@@ -23,7 +27,7 @@ class ProductPolicy
      */
     public function view(User $user, Product $product): bool
     {
-        return $this->isUserInGroup($user, $product->shoppingList->group_id);
+        return Utils::isUserInGroup($user, $product->shoppingList->group_id);
     }
 
     /**
@@ -31,8 +35,12 @@ class ProductPolicy
      */
     public function create(User $user, string $shoppingListId): bool
     {
-        $shoppingList = ShoppingList::findOrFail($shoppingListId);
-        return $this->isUserInGroup($user, $shoppingList->group_id);
+        $shoppingList = ShoppingList::find($shoppingListId);
+        if (!$shoppingList) {
+            return false;
+        }
+
+        return Utils::isUserInGroup($user, $shoppingList->group_id);
     }
 
     /**
@@ -40,7 +48,7 @@ class ProductPolicy
      */
     public function update(User $user, Product $product): bool
     {
-        return $this->isUserInGroup($user, $product->shoppingList->group_id);
+        return Utils::isUserInGroup($user, $product->shoppingList->group_id);
     }
 
     /**
@@ -48,11 +56,6 @@ class ProductPolicy
      */
     public function delete(User $user, Product $product): bool
     {
-        return $this->isUserInGroup($user, $product->shoppingList->group_id);
-    }
-
-    private function isUserInGroup(User $user, string $groupId): bool
-    {
-        return $user->groups->contains('id', $groupId);
+        return Utils::isUserInGroup($user, $product->shoppingList->group_id);
     }
 }
