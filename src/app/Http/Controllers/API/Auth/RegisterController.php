@@ -7,9 +7,12 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\UnauthorizedException;
 use Illuminate\Validation\ValidationException;
 
 class RegisterController extends Controller
@@ -56,8 +59,9 @@ class RegisterController extends Controller
         ]);
     }
 
-//    public function loginCheck(Request $request): UserResource
-//    {
-//
-//    }
+    public function loginCheck(): UserResource
+    {
+        $user = Auth::user();
+        return new UserResource($user);
+    }
 }
