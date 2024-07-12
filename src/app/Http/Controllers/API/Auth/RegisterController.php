@@ -33,11 +33,18 @@ class RegisterController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->email)->first();
+        $request->validated();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'email' => ['User with this email does not exist.'],
+            ]);
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => ['The provided password is incorrect.'],
             ]);
         }
 
