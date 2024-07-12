@@ -11,7 +11,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::controller(RegisterController::class)->group(function () {
     Route::post('/register', 'register');
+
+    Route::get('/login/check', 'loginCheck')->middleware('auth:sanctum');
     Route::post('/login', 'login');
+
     Route::post('/logout', 'logout');
 });
 
