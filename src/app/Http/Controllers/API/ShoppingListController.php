@@ -48,7 +48,7 @@ class ShoppingListController extends Controller
             throw new BadRequestHttpException('group_id not allowed');
         }
 
-        Gate::authorize('groupMember', [$user, Group::find($group_id)]);
+        Gate::authorize('groupMember', Group::find($group_id));
 
         $shoppingLists = ShoppingList::where('group_id', $group_id)->get();
 
@@ -71,7 +71,7 @@ class ShoppingListController extends Controller
             throw new ModelNotFoundException('Group by ID: ' . $group_id . ' not found');
         }
 
-        Gate::authorize('groupMember', [$user,  $group]);
+        Gate::authorize('groupMember', $group);
 
         $shoppingList = $group->shoppingLists()->create($data);
 
@@ -89,7 +89,7 @@ class ShoppingListController extends Controller
         $user = Auth::user();
         $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
 
-        Gate::authorize('groupMember', [$user, $shoppingList->group()]);
+        Gate::authorize('groupMember', $shoppingList->group());
 
         return new ShoppingListResource($shoppingList);
     }
@@ -105,7 +105,7 @@ class ShoppingListController extends Controller
         $user = Auth::user();
         $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
 
-        Gate::authorize('groupMember', [$user, $shoppingList->group()]);
+        Gate::authorize('groupMember', $shoppingList->group());
 
         $shoppingList->update($data);
 
@@ -123,7 +123,7 @@ class ShoppingListController extends Controller
         $user = Auth::user();
         $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
 
-        Gate::authorize('groupMember', [$user, $shoppingList->group()]);
+        Gate::authorize('groupMember', $shoppingList->group());
 
         $shoppingList->delete();
 

@@ -65,7 +65,7 @@ class GroupController extends Controller
 
         $group = $this->groupService->getGroupByUser($user, $id);
 
-        Gate::authorize('groupMember', [$user, $group]);
+        Gate::authorize('groupMember', $group);
 
         return new GroupResource($group);
     }
@@ -82,7 +82,7 @@ class GroupController extends Controller
 
         $group = $this->groupService->getGroupByUser($user, $id);
 
-        Gate::authorize('groupOwner', [$user, $group]);
+        Gate::authorize('groupOwner', $group);
 
         $group->update($data);
 
@@ -101,7 +101,7 @@ class GroupController extends Controller
 
         $group = $this->groupService->getGroupByUser($user, $id);
 
-        Gate::authorize('groupOwner', [$user, $group]);
+        Gate::authorize('groupOwner', $group);
 
         $group->delete();
 
@@ -128,7 +128,7 @@ class GroupController extends Controller
         $user = Auth::user();
         $group = $this->groupService->getGroupByUser($user, $groupId);
 
-        Gate::authorize('groupOwner', [$user, $group]);
+        Gate::authorize('groupOwner', $group);
 
         if (!$group->users()->where('users.id', $userId)->exists()) {
             return new ModelNotFoundException('User ' . $user->name . ' not found');
