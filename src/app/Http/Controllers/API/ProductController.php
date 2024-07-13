@@ -34,7 +34,7 @@ class ProductController extends Controller
             throw new ModelNotFoundException('Shopping list by ID: ' . $shoppingListId . ' not found');
         }
 
-        Gate::authorize('groupMember', $shoppingList->group());
+        Gate::authorize('groupMember', $shoppingList->group);
 
         $products = $shoppingList->products;
 
@@ -54,7 +54,7 @@ class ProductController extends Controller
             throw new ModelNotFoundException('Shopping list by ID: ' . $shoppingListId . ' not found');
         }
 
-        Gate::authorize('groupMember', $shoppingList->group());
+        Gate::authorize('groupMember', $shoppingList->group);
 
         $product = $shoppingList->products()->create($data);
         $product->shopping_list_id = $shoppingListId;
@@ -73,7 +73,7 @@ class ProductController extends Controller
     {
         $product = $this->productService->getProductByShoppingListId($shoppingListId, $id);
 
-        Gate::authorize('groupMember', $product->shoppingList->group());
+        Gate::authorize('groupMember', $product->shoppingList->group);
 
         return new ProductResource($product);
     }
@@ -86,7 +86,7 @@ class ProductController extends Controller
     {
         $product = $this->productService->getProductByShoppingListId($shoppingListId, $id);
 
-        Gate::authorize('groupMember', $product->shoppingList->group());
+        Gate::authorize('groupMember', $product->shoppingList->group);
 
         $product->update($request->validated());
 
@@ -103,7 +103,7 @@ class ProductController extends Controller
     {
         $product = $this->productService->getProductByShoppingListId($shoppingListId, $id);
 
-        Gate::authorize('groupMember', $product->shoppingList->group());
+        Gate::authorize('groupMember', $product->shoppingList->group);
 
         $product->delete();
 

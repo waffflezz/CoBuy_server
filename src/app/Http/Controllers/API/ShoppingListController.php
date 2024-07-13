@@ -102,7 +102,7 @@ class ShoppingListController extends Controller
         $user = Auth::user();
         $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
 
-        Gate::authorize('groupMember', $shoppingList->group());
+        Gate::authorize('groupMember', $shoppingList->group);
 
         $shoppingList->update($data);
 
@@ -120,7 +120,7 @@ class ShoppingListController extends Controller
         $user = Auth::user();
         $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
 
-        Gate::authorize('groupMember', $shoppingList->group());
+        Gate::authorize('groupMember', $shoppingList->group);
 
         $shoppingList->delete();
 
