@@ -13,12 +13,13 @@ class GroupPolicy
 {
     public function groupMember(User $user, Group $group): bool
     {
-        Log::debug('GROUP MEMBER: user_id: ' . $user->id . ' group_id: ' . $group->id . '| user in group members = ' . $group->users->contains($user));
+        Log::debug('(GROUP) GROUP MEMBER: user_id: ' . $user->id . ' group_id: ' . $group->id . '| user in group members = ' . $group->users->contains($user));
         return $group->users->contains($user);
     }
 
     public function groupOwner(User $user, Group $group): bool
     {
+        Log::debug('(GROUP) GROUP OWNER: user_id: ' . $user->id . ' group_id: ' . $group->id . '| user in group members = ' . $group->users->contains($user));
         return (int) $user->id === (int) $group->owner_id;
     }
 }

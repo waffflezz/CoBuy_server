@@ -16,13 +16,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 
 class GroupController extends Controller
 {
-    use AuthorizesRequests;
-
     private GroupService $groupService;
     public function __construct(GroupService $groupService)
     {
@@ -66,7 +65,7 @@ class GroupController extends Controller
 
         $group = $this->groupService->getGroupByUser($user, $id);
 
-        $this->authorize('groupMember', [$user, $group]);
+        Gate::authorize('groupMember', [$user, $group]);
 
         return new GroupResource($group);
     }
@@ -83,7 +82,7 @@ class GroupController extends Controller
 
         $group = $this->groupService->getGroupByUser($user, $id);
 
-        $this->authorize('groupOwner', [$user, $group]);
+        Gate::authorize('groupOwner', [$user, $group]);
 
         $group->update($data);
 
@@ -102,7 +101,7 @@ class GroupController extends Controller
 
         $group = $this->groupService->getGroupByUser($user, $id);
 
-        $this->authorize('groupOwner', [$user, $group]);
+        Gate::authorize('groupOwner', [$user, $group]);
 
         $group->delete();
 
@@ -129,7 +128,7 @@ class GroupController extends Controller
         $user = Auth::user();
         $group = $this->groupService->getGroupByUser($user, $groupId);
 
-        $this->authorize('groupOwner', [$user, $group]);
+        Gate::authorize('groupOwner', [$user, $group]);
 
         if (!$group->users()->where('users.id', $userId)->exists()) {
             return new ModelNotFoundException('User ' . $user->name . ' not found');
