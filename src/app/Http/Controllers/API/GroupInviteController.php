@@ -4,10 +4,13 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Group;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use STS\JWT\Facades\JWT;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class GroupInviteController extends Controller
 {
@@ -32,15 +35,24 @@ class GroupInviteController extends Controller
         $queryToken = $request->query('token', 'null');
         try {
             $token = JWT::parse($queryToken)->validate('invite_token');
-
-            $group_id = $token->getPayload()['group_id'];
-            $group = Group::findOrFail($group_id);
-
-            $group->users()->syncWithoutDetaching([Auth::user()->id]);
-
-            return response()->json(['message' => 'User add to group!']);
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 400);
+            throw new BadRequestHttpException('Invalid token');
         }
+
+        $group_id = $token->getPayload()['group_id'];
+
+        $group = Group::find($group_id);
+        if (!$group) {
+            throw new ModelNotFoundException('Group with ID: ' . $group_id . ' not found');
+        }
+
+        if ($group->users()->contains(Auth::user())) {
+            throw new BadRequestHttpException('User already invited');
+        }
+
+        $group->users()->syncWithoutDetaching([Auth::user()->id]);
+
+        return response()->json(['message' => 'User add to group!']);
+
     }
 }

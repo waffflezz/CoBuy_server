@@ -35,12 +35,13 @@ class ProductController extends Controller
      */
     public function index(string $shoppingListId)
     {
-        $this->authorize('viewAny', [Auth::user(), $shoppingListId]);
-
         $shoppingList = ShoppingList::find($shoppingListId);
         if (!$shoppingList) {
             throw new ModelNotFoundException('Shopping list by ID: ' . $shoppingListId . ' not found');
         }
+
+        $this->authorize('groupMember', [Auth::user(), $shoppingList->group()]);
+
         $products = $shoppingList->products;
 
         return ProductResource::collection($products);
@@ -54,12 +55,12 @@ class ProductController extends Controller
     {
         $data = $request->validated();
 
-        $this->authorize('create', [Auth::user(), $shoppingListId]);
-
         $shoppingList = ShoppingList::find($shoppingListId);
         if (!$shoppingList) {
             throw new ModelNotFoundException('Shopping list by ID: ' . $shoppingListId . ' not found');
         }
+
+        $this->authorize('create', [Auth::user(), $shoppingList->group()]);
 
         $product = $shoppingList->products()->create($data);
         $product->shopping_list_id = $shoppingListId;
@@ -78,7 +79,7 @@ class ProductController extends Controller
     {
         $product = $this->productService->getProductByShoppingListId($shoppingListId, $id);
 
-        $this->authorize('view', $product);
+        $this->authorize('groupMember', [Auth::user(), $product->shoppingList->group()]);
 
         return new ProductResource($product);
     }
@@ -91,7 +92,7 @@ class ProductController extends Controller
     {
         $product = $this->productService->getProductByShoppingListId($shoppingListId, $id);
 
-        $this->authorize('update', $product);
+        $this->authorize('groupMember', [Auth::user(), $product->shoppingList->group()]);
 
         $product->update($request->validated());
 
@@ -107,7 +108,8 @@ class ProductController extends Controller
     public function destroy(string $shoppingListId, string $id)
     {
         $product = $this->productService->getProductByShoppingListId($shoppingListId, $id);
-        $this->authorize('delete', $product);
+
+        $this->authorize('groupMember', [Auth::user(), $product->shoppingList->group()]);
 
         $product->delete();
 
