@@ -10,24 +10,13 @@ use Illuminate\Auth\Access\Response;
 
 class GroupPolicy
 {
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Group $group): bool
+    public function groupMember(User $user, Group $group): bool
     {
-        return Utils::isGroupOwner($user, $group);
+        return $group->users->contains($user);
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Group $group): bool
+    public function groupOwner(User $user, Group $group): bool
     {
-        return Utils::isGroupOwner($user, $group);
-    }
-
-    public function kick(User $user, Group $group): bool
-    {
-        return Utils::isGroupOwner($user, $group);
+        return $user->id === $group->owner_id;
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\List\ShoppingListStoreRequest;
 use App\Http\Requests\List\ShoppingListUpdateRequest;
 use App\Http\Resources\ShoppingListResource;
+use App\Models\Group;
 use App\Models\ShoppingList;
 use App\Services\ShoppingListService;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -42,11 +43,11 @@ class ShoppingListController extends Controller
 
         $user = Auth::user();
 
-        $this->authorize('viewAny', [$user, $group_id]);
-
         if (! $user->groups->pluck('id')->contains($group_id)) {
             throw new BadRequestHttpException('group_id not allowed');
         }
+
+        $this->authorize('groupMember', [$user, Group::find($group_id)]);
 
         $shoppingLists = ShoppingList::where('group_id', $group_id)->get();
 
@@ -63,12 +64,13 @@ class ShoppingListController extends Controller
 
         $user = Auth::user();
 
-        $this->authorize('create', [$user, $data['group_id']]);
-
-        $group = $user->groups()->find($request->group_id);
+        $group_id = $data['group_id'];
+        $group = $user->groups()->find($group_id);
         if (!$group) {
-            throw new ModelNotFoundException('Group by ID: ' . $request->group_id . ' not found');
+            throw new ModelNotFoundException('Group by ID: ' . $group_id . ' not found');
         }
+
+        $this->authorize('groupMember', [$user,  $group]);
 
         $shoppingList = $group->shoppingLists()->create($data);
 
@@ -86,7 +88,7 @@ class ShoppingListController extends Controller
         $user = Auth::user();
         $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
 
-        $this->authorize('view', [$user, $shoppingList->group_id]);
+        $this->authorize('groupMember', [$user, $shoppingList->group()]);
 
         return new ShoppingListResource($shoppingList);
     }
@@ -102,7 +104,7 @@ class ShoppingListController extends Controller
         $user = Auth::user();
         $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
 
-        $this->authorize('update', [$user, $shoppingList->group_id]);
+        $this->authorize('groupMember', [$user, $shoppingList->group()]);
 
         $shoppingList->update($data);
 
@@ -120,7 +122,7 @@ class ShoppingListController extends Controller
         $user = Auth::user();
         $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
 
-        $this->authorize('delete', [$user, $shoppingList->group_id]);
+        $this->authorize('groupMember', [$user, $shoppingList->group()]);
 
         $shoppingList->delete();
 

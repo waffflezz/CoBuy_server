@@ -58,12 +58,15 @@ class GroupController extends Controller
 
     /**
      * Display the specified resource.
+     * @throws AuthorizationException
      */
     public function show(string $id): GroupResource
     {
         $user = Auth::user();
 
         $group = $this->groupService->getGroupByUser($user, $id);
+
+        $this->authorize('groupMember', [$user, $group]);
 
         return new GroupResource($group);
     }
@@ -80,7 +83,7 @@ class GroupController extends Controller
 
         $group = $this->groupService->getGroupByUser($user, $id);
 
-        $this->authorize('update', [$user, $group]);
+        $this->authorize('groupOwner', [$user, $group]);
 
         $group->update($data);
 
@@ -99,7 +102,7 @@ class GroupController extends Controller
 
         $group = $this->groupService->getGroupByUser($user, $id);
 
-        $this->authorize('delete', [$user, $group]);
+        $this->authorize('groupOwner', [$user, $group]);
 
         $group->delete();
 
@@ -126,7 +129,7 @@ class GroupController extends Controller
         $user = Auth::user();
         $group = $this->groupService->getGroupByUser($user, $groupId);
 
-        $this->authorize('kick', [$user, $group]);
+        $this->authorize('groupOwner', [$user, $group]);
 
         if (!$group->users()->where('users.id', $userId)->exists()) {
             return new ModelNotFoundException('User ' . $user->name . ' not found');
