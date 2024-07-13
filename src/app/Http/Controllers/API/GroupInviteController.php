@@ -7,8 +7,6 @@ use App\Models\Group;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
-use Lcobucci\JWT\Token\InvalidTokenStructure;
 use STS\JWT\Facades\JWT;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 

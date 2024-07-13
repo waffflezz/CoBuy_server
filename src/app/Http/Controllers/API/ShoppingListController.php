@@ -13,7 +13,6 @@ use App\Models\ShoppingList;
 use App\Services\ShoppingListService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -21,8 +20,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ShoppingListController extends Controller
 {
-    use AuthorizesRequests;
-
     private ShoppingListService $shoppingListService;
 
     public function __construct(ShoppingListService $shoppingListService)
