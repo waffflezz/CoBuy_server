@@ -86,7 +86,7 @@ class ShoppingListController extends Controller
         $user = Auth::user();
         $shoppingList = $this->shoppingListService->getShoppingList($user, $id);
 
-        Gate::authorize('groupMember', $shoppingList->group());
+        Gate::authorize('groupMember', $shoppingList->group);
 
         return new ShoppingListResource($shoppingList);
     }
