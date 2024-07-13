@@ -25,6 +25,9 @@ Route::controller(OAuthController::class)->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('group', GroupController::class);
+    Route::post('/group/leave', [GroupController::class, 'leave']);
+    Route::post('/group/kick', [GroupController::class, 'kick']);
+
     Route::apiResource('list', ShoppingListController::class);
     Route::apiResource('list.product', ProductController::class);
 

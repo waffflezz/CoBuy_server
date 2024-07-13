@@ -12,6 +12,7 @@ use App\Services\GroupService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -106,11 +107,15 @@ class GroupController extends Controller
         return response()->json(null, 204);
     }
 
-    public function leave(string $id)
+    public function leave(Request $request)
     {
+        $data = $request->validate([
+            'group_id' => 'required|exists:groups,id'
+        ]);
+
         $user = Auth::user();
 
-        $group = $this->groupService->getGroupByUser($user, $id);
+        $group = $this->groupService->getGroupByUser($user, $data['group_id']);
 
         $group->users()->detach($user->id);
         return response()->json(null, 204);
@@ -119,18 +124,23 @@ class GroupController extends Controller
     /**
      * @throws AuthorizationException
      */
-    public function kick(string $groupId, string $userId)
+    public function kick(Request $request)
     {
+        $data = $request->validate([
+            'group_id' => 'required|exists:groups,id',
+            'user_id' => 'required|exists:users,id'
+        ]);
+
         $user = Auth::user();
-        $group = $this->groupService->getGroupByUser($user, $groupId);
+        $group = $this->groupService->getGroupByUser($user, $data['group_id']);
 
         Gate::authorize('groupOwner', $group);
 
-        if (!$group->users()->where('users.id', $userId)->exists()) {
+        if (!$group->users()->where('users.id', $data['user_id'])->exists()) {
             return new ModelNotFoundException('User ' . $user->name . ' not found');
         }
 
-        $group->users()->detach($userId);
+        $group->users()->detach($data['user_id']);
         return response()->json(null, 204);
     }
 }
