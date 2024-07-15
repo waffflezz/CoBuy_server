@@ -47,7 +47,7 @@ class ShoppingListController extends Controller
 
         Gate::authorize('groupMember', Group::find($group_id));
 
-        $shoppingLists = ShoppingList::where('group_id', $group_id)->get();
+        $shoppingLists = ShoppingList::where('group_id', $group_id)->latest()->get();
 
         return ShoppingListResource::collection($shoppingLists);
     }

@@ -31,7 +31,7 @@ class GroupController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $user = Auth::user();
-        $groups = $user->groups;
+        $groups = $user->groups()->latest()->get();
 
         return GroupResource::collection($groups);
     }

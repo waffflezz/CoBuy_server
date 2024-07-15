@@ -67,7 +67,6 @@ class ProductController extends Controller
 
     /**
      * Display the specified resource.
-     * @throws AuthorizationException
      */
     public function show(string $shoppingListId, string $id)
     {
@@ -80,7 +79,6 @@ class ProductController extends Controller
 
     /**
      * Update the specified resource in storage.
-     * @throws AuthorizationException
      */
     public function update(ProductUpdateRequest $request, string $shoppingListId, string $id)
     {
@@ -99,7 +97,6 @@ class ProductController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     * @throws AuthorizationException
      */
     public function destroy(string $shoppingListId, string $id)
     {
