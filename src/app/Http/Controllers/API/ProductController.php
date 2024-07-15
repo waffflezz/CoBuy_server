@@ -58,6 +58,7 @@ class ProductController extends Controller
 
         $product = $shoppingList->products()->create($data);
         $product->shopping_list_id = $shoppingListId;
+        $product->status = 0;
         $product->save();
 
         broadcast(new ProductChanged($product, EventType::Create))->toOthers();
