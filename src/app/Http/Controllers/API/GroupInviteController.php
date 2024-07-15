@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Group;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,11 +13,18 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class GroupInviteController extends Controller
 {
+    /**
+     * @throws AuthorizationException
+     */
     public function getInviteLink(string $groupId)
     {
         $group = Group::find($groupId);
         if (!$group) {
             throw new ModelNotFoundException('Group not found');
+        }
+
+        if (!$group->users->contains(Auth::user())) {
+            throw new AuthorizationException();
         }
 
         if (is_null($group->invite_link) || !JWT::parse($group->invite_link)->isValid('inviteToken')) {
