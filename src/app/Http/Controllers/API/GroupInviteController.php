@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Group;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,13 +13,23 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class GroupInviteController extends Controller
 {
+    /**
+     * @throws AuthorizationException
+     */
     public function getInviteLink(string $groupId)
     {
-        $group = Group::findOrFail($groupId);
+        $group = Group::find($groupId);
+        if (!$group) {
+            throw new ModelNotFoundException('Group not found');
+        }
 
-        if (is_null($group->invite_link) || !JWT::parse($group->invite_link)->isValid('invite_token')) {
-            $token = JWT::get('invite_token', [
-                'group_id' => $groupId,
+        if (!$group->users->contains(Auth::user())) {
+            throw new AuthorizationException();
+        }
+
+        if (is_null($group->invite_link) || !JWT::parse($group->invite_link)->isValid('inviteToken')) {
+            $token = JWT::get('inviteToken', [
+                'groupId' => $groupId,
             ]);
             $group->invite_link = $token;
             $group->save();
@@ -32,19 +43,19 @@ class GroupInviteController extends Controller
     {
         $queryToken = $request->query('token', 'null');
         try {
-            $token = JWT::parse($queryToken)->validate('invite_token');
+            $token = JWT::parse($queryToken)->validate('inviteToken');
         } catch (\Exception $exception) {
             throw new BadRequestHttpException('Invalid token');
         }
 
-        $group_id = $token->getPayload()['group_id'];
+        $groupId = $token->getPayload()['groupId'];
 
-        $group = Group::find($group_id);
+        $group = Group::find($groupId);
         if (!$group) {
-            throw new ModelNotFoundException('Group with ID: ' . $group_id . ' not found');
+            throw new ModelNotFoundException('Group with ID: ' . $groupId . ' not found');
         }
 
-        if ($group->users()->contains(Auth::user())) {
+        if ($group->users()->where('users.id', Auth::id())->exists()) {
             throw new BadRequestHttpException('User already invited');
         }
 

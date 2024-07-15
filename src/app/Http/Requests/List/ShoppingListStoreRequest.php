@@ -23,7 +23,7 @@ class ShoppingListStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'group_id' => 'required|exists:groups,id',
+            'groupId' => 'required|exists:groups,id',
         ];
     }
 }

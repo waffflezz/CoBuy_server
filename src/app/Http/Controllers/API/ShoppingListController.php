@@ -47,7 +47,7 @@ class ShoppingListController extends Controller
 
         Gate::authorize('groupMember', Group::find($group_id));
 
-        $shoppingLists = ShoppingList::where('group_id', $group_id)->get();
+        $shoppingLists = ShoppingList::where('group_id', $group_id)->latest()->get();
 
         return ShoppingListResource::collection($shoppingLists);
     }
@@ -62,10 +62,10 @@ class ShoppingListController extends Controller
 
         $user = Auth::user();
 
-        $group_id = $data['group_id'];
-        $group = $user->groups()->find($group_id);
+        $groupId = $data['groupId'];
+        $group = $user->groups()->find($groupId);
         if (!$group) {
-            throw new ModelNotFoundException('Group by ID: ' . $group_id . ' not found');
+            throw new ModelNotFoundException('Group by ID: ' . $groupId . ' not found');
         }
 
         Gate::authorize('groupMember', $group);

@@ -31,7 +31,7 @@ class GroupController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $user = Auth::user();
-        $groups = $user->groups;
+        $groups = $user->groups()->latest()->get();
 
         return GroupResource::collection($groups);
     }
@@ -107,15 +107,11 @@ class GroupController extends Controller
         return response()->json(null, 204);
     }
 
-    public function leave(Request $request)
+    public function leave(string $id): JsonResponse
     {
-        $data = $request->validate([
-            'group_id' => 'required|exists:groups,id'
-        ]);
-
         $user = Auth::user();
 
-        $group = $this->groupService->getGroupByUser($user, $data['group_id']);
+        $group = $this->groupService->getGroupByUser($user, $id);
 
         $group->users()->detach($user->id);
         return response()->json(null, 204);
@@ -127,20 +123,20 @@ class GroupController extends Controller
     public function kick(Request $request)
     {
         $data = $request->validate([
-            'group_id' => 'required|exists:groups,id',
-            'user_id' => 'required|exists:users,id'
+            'groupId' => 'required|exists:groups,id',
+            'userId' => 'required|exists:users,id'
         ]);
 
         $user = Auth::user();
-        $group = $this->groupService->getGroupByUser($user, $data['group_id']);
+        $group = $this->groupService->getGroupByUser($user, $data['groupId']);
 
         Gate::authorize('groupOwner', $group);
 
-        if (!$group->users()->where('users.id', $data['user_id'])->exists()) {
+        if (!$group->users()->where('users.id', $data['userId'])->exists()) {
             return new ModelNotFoundException('User ' . $user->name . ' not found');
         }
 
-        $group->users()->detach($data['user_id']);
+        $group->users()->detach($data['userId']);
         return response()->json(null, 204);
     }
 }
