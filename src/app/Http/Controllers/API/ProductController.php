@@ -84,11 +84,13 @@ class ProductController extends Controller
      */
     public function update(ProductUpdateRequest $request, string $shoppingListId, string $id)
     {
+        $data = $request->validated();
+
         $product = $this->productService->getProductByShoppingListId($shoppingListId, $id);
 
         Gate::authorize('groupMember', $product->shoppingList->group);
 
-        $product->update($request->validated());
+        $product->update($data);
 
         broadcast(new ProductChanged($product, EventType::Update))->toOthers();
 
