@@ -47,7 +47,7 @@ class GroupInviteController extends Controller
             throw new ModelNotFoundException('Group with ID: ' . $groupId . ' not found');
         }
 
-        if ($group->users()->contains(Auth::user())) {
+        if ($group->users()->where('users.id', Auth::id())->exists()) {
             throw new BadRequestHttpException('User already invited');
         }
 
