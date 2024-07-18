@@ -4,8 +4,8 @@ namespace App\Events;
 
 use App\Http\Resources\GroupResource;
 use App\Models\Group;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -34,7 +34,7 @@ class GroupChanged implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('group-changed.' . $this->group->id),
+            new Channel('group-changed.' . $this->group->id),
         ];
     }
 

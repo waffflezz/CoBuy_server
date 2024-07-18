@@ -4,8 +4,8 @@ namespace App\Events;
 
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -34,7 +34,7 @@ class ProductChanged implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('product-changed.' . $this->product->shopping_list_id),
+            new Channel('product-changed.' . $this->product->shopping_list_id),
         ];
     }
 
