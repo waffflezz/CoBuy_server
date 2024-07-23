@@ -2,11 +2,11 @@
 
 use App\Http\Controllers\API\Auth\OAuthController;
 use App\Http\Controllers\API\Auth\RegisterController;
+use App\Http\Controllers\API\EmailVerificationController;
 use App\Http\Controllers\API\GroupController;
 use App\Http\Controllers\API\GroupInviteController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ShoppingListController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(RegisterController::class)->group(function () {
@@ -16,6 +16,11 @@ Route::controller(RegisterController::class)->group(function () {
     Route::post('/login', 'login');
 
     Route::post('/logout', 'logout');
+});
+
+Route::controller(EmailVerificationController::class)->group(function () {
+    Route::post('/email/verify/send', 'sendVerificationPin');
+    Route::post('/email/verify', 'verifyPin');
 });
 
 Route::controller(OAuthController::class)->group(function () {
