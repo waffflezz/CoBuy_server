@@ -23,7 +23,7 @@ class GroupStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'image' => 'nullable|string|max:255',
+            'image' => 'nullable|image|max:1024',
         ];
     }
 }

@@ -44,6 +44,13 @@ class GroupController extends Controller
         $data = $request->validated();
         $data['owner_id'] = Auth::id();
 
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/groups', time() . '.' . $extension);
+            $data['image'] = $path;
+        }
+
         $group = Group::create($data);
         $group->users()->attach(Auth::id());
 
@@ -80,6 +87,13 @@ class GroupController extends Controller
         $group = $this->groupService->getGroupByUser($user, $id);
 
         Gate::authorize('groupOwner', $group);
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/groups', time() . '.' . $extension);
+            $data['image'] = $path;
+        }
 
         $group->update($data);
 
