@@ -33,6 +33,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/group/{group}/leave', [GroupController::class, 'leave']);
     Route::post('/group/kick', [GroupController::class, 'kick']);
 
+    Route::get('/group/{group}/getImage', [GroupController::class, 'showImage']);
+    Route::post('/group/{group}/setImage', [GroupController::class, 'updateImage']);
+    Route::delete('/group/{group}/resetImage', [GroupController::class, 'destroyImage']);
+
     Route::apiResource('list', ShoppingListController::class);
     Route::apiResource('list.product', ProductController::class);
 
