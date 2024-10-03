@@ -6,7 +6,9 @@ use App\Events\EventType;
 use App\Events\GroupChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Group\GroupStoreRequest;
-use App\Http\Resources\GroupResource;
+use App\Http\Requests\Group\GroupUpdateImageRequest;
+use App\Http\Resources\Group\GroupImageResource;
+use App\Http\Resources\Group\GroupResource;
 use App\Models\Group;
 use App\Services\GroupService;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -151,6 +153,56 @@ class GroupController extends Controller
         }
 
         $group->users()->detach($data['userId']);
+        return response()->json(null, 204);
+    }
+
+    public function showImage(string $id)
+    {
+        $user = Auth::user();
+
+        $group = $this->groupService->getGroupByUser($user, $id);
+
+        Gate::authorize('groupMember', $group);
+
+        return new GroupImageResource($group);
+    }
+
+    public function updateImage(GroupUpdateImageRequest $request, string $id)
+    {
+        $data = $request->validated();
+
+        $user = Auth::user();
+
+        $group = $this->groupService->getGroupByUser($user, $id);
+
+        Gate::authorize('groupOwner', $group);
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/groups', time() . '.' . $extension);
+            $data['image'] = $path;
+        }
+
+        $group->update($data);
+
+        broadcast(new GroupChanged($group, EventType::Update))->toOthers();
+
+        return new GroupImageResource($group);
+    }
+
+    public function destroyImage(string $id): JsonResponse
+    {
+        $user = Auth::user();
+
+        $group = $this->groupService->getGroupByUser($user, $id);
+
+        Gate::authorize('groupOwner', $group);
+
+        $group->update(['image' => null]);
+
+        broadcast(new GroupChanged($group, EventType::Delete))->toOthers();
+
         return response()->json(null, 204);
     }
 }

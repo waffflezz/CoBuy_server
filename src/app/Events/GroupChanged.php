@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Http\Resources\GroupResource;
+use App\Http\Resources\Group\GroupResource;
 use App\Models\Group;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
