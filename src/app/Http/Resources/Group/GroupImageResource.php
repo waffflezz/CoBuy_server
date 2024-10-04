@@ -16,7 +16,7 @@ class GroupImageResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'avaUrl' => $this->image
+            'avaUrl' => asset($this->image)
         ];
     }
 }
