@@ -18,7 +18,7 @@ class GroupResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'avaUrl' => asset('storage/groups/' . basename($this->image)),
+            'avaUrl' => $this->image ? asset('storage/groups/' . basename($this->image)) : null,
             'inviteLink' => $this->invite_link,
             'owner' => $this->owner_id,
             'membersCount' => $this->users->count(),
