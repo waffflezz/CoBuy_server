@@ -22,7 +22,7 @@ class ProductResource extends JsonResource
             'shoppingListId' => $this->shopping_list_id,
             'productImgUrl' => asset('storage/products/' . basename($this->image)),
             'price' => $this->price,
-            'userId' => $this->user_id
+            'buyer' => $this->user_id
         ];
     }
 }
