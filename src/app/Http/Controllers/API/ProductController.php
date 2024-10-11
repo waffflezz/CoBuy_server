@@ -6,12 +6,14 @@ use App\Events\EventType;
 use App\Events\ProductChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\ProductStoreRequest;
+use App\Http\Requests\Product\ProductUpdateImageRequest;
 use App\Http\Requests\Product\ProductUpdateRequest;
-use App\Http\Resources\ProductResource;
+use App\Http\Resources\Product\ProductResource;
 use App\Models\ShoppingList;
 use App\Services\ProductService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
@@ -106,6 +108,50 @@ class ProductController extends Controller
         Gate::authorize('groupMember', $product->shoppingList->group);
 
         $product->delete();
+
+        broadcast(new ProductChanged($product, EventType::Delete))->toOthers();
+
+        return response()->json(null, 204);
+    }
+
+    public function showImage(string $shoppingListId, string $productId)
+    {
+        $product = $this->productService->getProductByShoppingListId($shoppingListId, $productId);
+
+        Gate::authorize('groupMember', $product->shoppingList->group);
+
+        return new ProductResource($product);
+    }
+
+    public function updateImage(ProductUpdateImageRequest $request, string $shoppingListId, string $productId)
+    {
+        $data = $request->validated();
+
+        $product = $this->productService->getProductByShoppingListId($shoppingListId, $productId);
+
+        Gate::authorize('groupMember', $product->shoppingList->group);
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/products', time() . '.' . $extension);
+            $data['image'] = $path;
+        }
+
+        $product->update($data);
+
+        broadcast(new ProductChanged($product, EventType::Update))->toOthers();
+
+        return new ProductResource($product);
+    }
+
+    public function destroyImage(string $shoppingListId, string $productId): JsonResponse
+    {
+        $product = $this->productService->getProductByShoppingListId($shoppingListId, $productId);
+
+        Gate::authorize('groupMember', $product->shoppingList->group);
+
+        $product->update(['image' => null]);
 
         broadcast(new ProductChanged($product, EventType::Delete))->toOthers();
 

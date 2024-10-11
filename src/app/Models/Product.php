@@ -15,6 +15,9 @@ class Product extends Model
         'description',
         'status',
         'shopping_list_id',
+        'image',
+        'price',
+        'user_id'
     ];
 
     public function shoppingList(): BelongsTo
