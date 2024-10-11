@@ -20,7 +20,7 @@ class ProductImageResource extends JsonResource
             'description' => $this->description,
             'status' => $this->status,
             'shoppingListId' => $this->shopping_list_id,
-            'productImgUrl' => asset('storage/products/' . basename($this->image)),
+            'productImgUrl' => $this->image ? asset('storage/products/' . basename($this->image)) : null,
             'price' => $this->price,
             'userId' => $this->user_id
         ];
