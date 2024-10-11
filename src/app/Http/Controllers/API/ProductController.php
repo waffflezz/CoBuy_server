@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\ProductStoreRequest;
 use App\Http\Requests\Product\ProductUpdateImageRequest;
 use App\Http\Requests\Product\ProductUpdateRequest;
+use App\Http\Resources\Product\ProductImageResource;
 use App\Http\Resources\Product\ProductResource;
 use App\Models\ShoppingList;
 use App\Services\ProductService;
@@ -120,7 +121,7 @@ class ProductController extends Controller
 
         Gate::authorize('groupMember', $product->shoppingList->group);
 
-        return new ProductResource($product);
+        return new ProductImageResource($product);
     }
 
     public function updateImage(ProductUpdateImageRequest $request, string $shoppingListId, string $productId)
@@ -142,7 +143,7 @@ class ProductController extends Controller
 
         broadcast(new ProductChanged($product, EventType::Update))->toOthers();
 
-        return new ProductResource($product);
+        return new ProductImageResource($product);
     }
 
     public function destroyImage(string $shoppingListId, string $productId): JsonResponse
