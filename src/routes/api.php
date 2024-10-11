@@ -40,6 +40,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('list', ShoppingListController::class);
     Route::apiResource('list.product', ProductController::class);
 
+    Route::get('/list/{list}/product/{product}/getImage', [ProductController::class, 'showImage']);
+    Route::post('/list/{list}/product/{product}/setImage', [ProductController::class, 'updateImage']);
+    Route::delete('/list/{list}/product/{product}/resetImage', [ProductController::class, 'destroyImage']);
+
     Route::get('/invite/{group}', [GroupInviteController::class, 'getInviteLink']);
     Route::get('/invite', [GroupInviteController::class, 'invite']);
 });
