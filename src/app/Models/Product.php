@@ -10,6 +10,10 @@ class Product extends Model
 {
     use HasFactory;
 
+    const NONE_STATUS = 0;
+    const BUY_STATUS = 1;
+    const PLANNED_STATUS = 2;
+
     protected $fillable = [
         'name',
         'description',

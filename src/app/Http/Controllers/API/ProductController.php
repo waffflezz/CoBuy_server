@@ -10,11 +10,13 @@ use App\Http\Requests\Product\ProductUpdateImageRequest;
 use App\Http\Requests\Product\ProductUpdateRequest;
 use App\Http\Resources\Product\ProductImageResource;
 use App\Http\Resources\Product\ProductResource;
+use App\Models\Product;
 use App\Models\ShoppingList;
 use App\Services\ProductService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
@@ -93,6 +95,12 @@ class ProductController extends Controller
         Gate::authorize('groupMember', $product->shoppingList->group);
 
         $product->update($data);
+        if ($data['status'] !== Product::NONE_STATUS) {
+            $product->buyer_id = Auth::id();
+        } else {
+            $product->buyer_id = null;
+        }
+        $product->save();
 
         broadcast(new ProductChanged($product, EventType::Update))->toOthers();
 
