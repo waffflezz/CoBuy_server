@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -95,10 +96,12 @@ class ProductController extends Controller
         Gate::authorize('groupMember', $product->shoppingList->group);
 
         $product->update($data);
-        if ($data['status'] !== Product::NONE_STATUS) {
-            $product->buyer_id = Auth::id();
-        } else {
-            $product->buyer_id = null;
+        if (isset($data['status'])) {
+            if ($data['status'] !== Product::NONE_STATUS) {
+                $product->buyer_id = Auth::id();
+            } else {
+                $product->buyer_id = null;
+            }
         }
         $product->save();
 
