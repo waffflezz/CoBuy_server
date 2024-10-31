@@ -25,6 +25,7 @@ Route::controller(EmailVerificationController::class)->group(function () {
 
 Route::controller(OAuthController::class)->group(function () {
     Route::get('/yandex', 'yandex');
+    
     Route::get('/yandex/redirect', 'yandexRedirect');
 });
 
