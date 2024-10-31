@@ -9,17 +9,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Run command on remote server
-      uses: D3rHase/ssh-command-action@v0.2.2
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.4
       with:
-        host: ${{secrets.SSH_HOST}}
-        user: ${{secrets.SSH_USER}}
-        private_key: ${{secrets.SSH_PRIVATE_KEY}}
-        command: |
-          cd CoBuy_server;
-          git pull;
-          docker compose down;
-          docker ps;
-          docker compose -file docker-compose-prod.yml up -d;
-          docker system prune --all --force;
-          docker ps;
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to server
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_HOST }} << 'EOF'
+          cd CoBuy_server
+          git pull
+          docker compose -f docker-compose-prod.yml down
+          docker ps
+          docker compose -f docker-compose-prod.yml up -d
+          docker system prune --all --force
+          docker ps
+        EOF
