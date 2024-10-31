@@ -19,7 +19,7 @@ jobs:
 
     - name: Deploy to server
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_HOST }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_HOST }} << 'EOF'
           cd CoBuy_server
           git pull
           docker compose -f docker-compose-prod.yml down
