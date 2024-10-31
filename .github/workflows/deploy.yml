@@ -19,6 +19,7 @@ jobs:
 
     - name: Deploy to server
       run: |
+        echo "Connecting to ${{ secrets.SERVER_HOST }}"
         ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_HOST }} << 'EOF'
           cd CoBuy_server
           git pull
