@@ -19,13 +19,11 @@ jobs:
 
     - name: Deploy to server
       run: |
-        echo "Connecting to ${{ secrets.SERVER_HOST }}"
         ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_HOST }} << 'EOF'
           cd CoBuy_server
           git pull
           docker compose -f docker-compose-prod.yml down
-          docker ps
           docker compose -f docker-compose-prod.yml up -d
+          ./docker_run artisan migrate
           docker system prune --all --force
-          docker ps
         EOF
