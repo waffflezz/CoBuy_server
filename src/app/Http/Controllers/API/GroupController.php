@@ -130,6 +130,9 @@ class GroupController extends Controller
         $group = $this->groupService->getGroupByUser($user, $id);
 
         $group->users()->detach($user->id);
+
+        broadcast(new GroupChanged($group, EventType::Update))->toOthers();
+
         return response()->json(null, 204);
     }
 
@@ -153,6 +156,9 @@ class GroupController extends Controller
         }
 
         $group->users()->detach($data['userId']);
+
+        broadcast(new GroupChanged($group, EventType::Update))->toOthers();
+
         return response()->json(null, 204);
     }
 

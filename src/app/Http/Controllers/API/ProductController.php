@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Events\EventType;
+use App\Events\ListChanged;
 use App\Events\ProductChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\ProductStoreRequest;
@@ -13,6 +14,7 @@ use App\Http\Resources\Product\ProductResource;
 use App\Models\Product;
 use App\Models\ShoppingList;
 use App\Services\ProductService;
+use App\Services\ShoppingListService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -23,10 +25,12 @@ use Illuminate\Support\Facades\Log;
 class ProductController extends Controller
 {
     private ProductService $productService;
+    private ShoppingListService $shoppingListService;
 
-    public function __construct(ProductService $productService)
+    public function __construct(ProductService $productService, ShoppingListService $shoppingListService)
     {
         $this->productService = $productService;
+        $this->shoppingListService = $shoppingListService;
     }
 
     /**
@@ -68,6 +72,7 @@ class ProductController extends Controller
         $product->save();
 
         broadcast(new ProductChanged($product, EventType::Create))->toOthers();
+        broadcast(new ListChanged($shoppingList, EventType::Update))->toOthers();
 
         return new ProductResource($product);
     }
@@ -91,6 +96,7 @@ class ProductController extends Controller
     {
         $data = $request->validated();
 
+        $shoppingList = $this->shoppingListService->getShoppingList(Auth::user(), $shoppingListId);
         $product = $this->productService->getProductByShoppingListId($shoppingListId, $id);
 
         Gate::authorize('groupMember', $product->shoppingList->group);
@@ -106,6 +112,7 @@ class ProductController extends Controller
         $product->save();
 
         broadcast(new ProductChanged($product, EventType::Update))->toOthers();
+        broadcast(new ListChanged($shoppingList, EventType::Update))->toOthers();
 
         return new ProductResource($product);
     }
