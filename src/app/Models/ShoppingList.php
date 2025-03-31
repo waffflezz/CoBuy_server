@@ -14,6 +14,7 @@ class ShoppingList extends Model
     protected $fillable = [
         'name',
         'group_id',
+        'hidden'
     ];
 
     public function group(): BelongsTo

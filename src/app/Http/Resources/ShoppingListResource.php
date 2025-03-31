@@ -22,7 +22,8 @@ class ShoppingListResource extends JsonResource
             'productsCount' => $this->products->count(),
             'checkedProductsCount' => $this->products->filter(function (Product $product) {
                 return $product->status != 0;
-            })->count()
+            })->count(),
+            'hidden' => $this->hidden
         ];
     }
 }
