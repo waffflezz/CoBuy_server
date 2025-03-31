@@ -24,6 +24,14 @@ class ShoppingListStoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'groupId' => 'required|exists:groups,id',
+            'hidden' => 'boolean',
         ];
+    }
+
+    public function validated($key = null, $default = null): array
+    {
+        $data = parent::validated($key, $default);
+        $data['hidden'] = $this->input('hidden', false);
+        return $data;
     }
 }
