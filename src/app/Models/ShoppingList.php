@@ -17,6 +17,10 @@ class ShoppingList extends Model
         'hidden'
     ];
 
+    protected $casts = [
+        'hidden' => 'boolean',
+    ];
+
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
